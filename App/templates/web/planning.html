@@ -1,0 +1,13 @@
+{% extends "web/base.html" %}
+{% block title %}Планирование — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_home' %}">← Назад</a>
+  <div>{{ account.full_name|default:account.username }} ({{ account.role }})</div>
+  <a href="{% url 'web_logout' %}">Выйти</a>
+</header>
+<h1>Планирование</h1>
+<div class="button-grid">
+  <a href="{% url 'web_pole_economy' %}" class="button-link">Опорное хозяйство</a>
+</div>
+{% endblock %}

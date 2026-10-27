@@ -1,0 +1,101 @@
+{% extends "web/base.html" %}
+{% block title %}Добавить опоры из Excel — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_pole_book' %}">← Назад к списку</a>
+</header>
+
+{% if forbidden %}
+  <p>Загрузка опор из Excel доступна только ролям ТЭ и НТЭ.</p>
+{% else %}
+  <h1>Добавить опоры из Excel</h1>
+
+  {% if choose_count %}
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <p class="scope-info">
+      Сколько листов в файле нужно прочитать? Для каждого листа отдельно задаются
+      строка с заголовками и столбцы — структура таблицы бывает разной даже на разных
+      листах одного файла.
+    </p>
+    <form method="get" class="field-row">
+      <label>Количество листов</label>
+      <input type="text" name="sheets" value="1" placeholder="например, 1">
+      <button type="submit">Далее</button>
+    </form>
+  {% else %}
+  <div data-ajax-save>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+    {% if success %}
+      <p class="scope-info">
+        Готово — добавлено записей: {{ created }}{% if skipped %}, пропущено как дубликаты уже существующих опор: {{ skipped }}{% endif %}.
+        Можно загрузить ещё один файл.
+      </p>
+    {% endif %}
+
+    <p class="scope-info"><a href="{% url 'web_add_pole' %}">Изменить количество листов</a></p>
+
+    <p class="scope-info">
+      Для каждого листа укажи его номер по порядку (1, 2, …) или точное имя
+      (необязательно — по умолчанию активный лист файла). Для каждого нужного поля
+      укажи столбец («C»), диапазон столбцов («C:E») или — если записи идут не сразу
+      после заголовка или заканчиваются раньше конца листа — точный диапазон ячеек со
+      строками («C9:E28»; строку нужно указать с ОБЕИХ сторон двоеточия, иначе она не
+      учтётся). Если строки указаны хотя бы у одного поля на листе — читаются именно
+      они, а «Номер строки с заголовками» ниже можно не заполнять. Если ни у одного
+      поля строки не указаны — данные читаются от следующей строки после «Номера
+      строки с заголовками» и до конца листа (полностью пустые строки пропускаются).
+      Поля без указанного столбца останутся пустыми — их можно дозаполнить вручную
+      после импорта. Если в файле нет отдельного столбца для дирекции — впиши её
+      вручную в поле ниже (актуально для роли ТЭ, у которой нет своей дирекции по
+      умолчанию); для района КС/станции без столбца подставятся значения твоего
+      аккаунта (если они заполнены). Незаполненный блок листа просто игнорируется.
+    </p>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="sheets_count" value="{{ sheet_range|length }}">
+      <div class="field-row">
+        <label>Файл (.xlsx)</label>
+        <input type="file" name="excel_file" accept=".xlsx">
+      </div>
+
+      {% for i in sheet_range %}
+      <details class="sheet-block" open>
+        <summary>Лист {{ i }}</summary>
+
+        <div class="field-row">
+          <label>Номер или имя листа (необязательно — по умолчанию активный лист файла)</label>
+          <input type="text" name="sheet_ref_{{ i }}" placeholder="например, 2 или Лист1">
+        </div>
+        <div class="field-row">
+          <label>Номер строки с заголовками (не нужен, если строки уже указаны в ссылках на ячейки ниже)</label>
+          <input type="text" name="header_row_{{ i }}" placeholder="например, 3">
+        </div>
+        <div class="field-row">
+          <label>Дирекция по энергообеспечению — если в файле нет отдельного столбца, впиши значение руками (проставится всем опорам этого листа)</label>
+          <input type="text" name="directorate_override_{{ i }}" placeholder="например, Дирекция №3">
+        </div>
+
+        {% for name, fields in fields_by_sheet %}
+        <details>
+          <summary>{{ name }}</summary>
+          {% for f in fields %}
+            {% if f.type != "computed" and f.type != "file" %}
+            <div class="field-row">
+              <label>{{ f.label }}</label>
+              <input type="text" name="cell_{{ i }}_{{ f.key }}" placeholder="например, C, C:E или C9:E28">
+            </div>
+            {% endif %}
+          {% endfor %}
+        </details>
+        {% endfor %}
+      </details>
+      {% endfor %}
+
+      <button type="submit">Загрузить и добавить опоры</button>
+    </form>
+  </div>
+  {% endif %}
+{% endif %}
+{% endblock %}

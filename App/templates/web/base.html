@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Опоры Трансэнерго{% endblock %}</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 900px; margin: 24px auto; padding: 0 16px; color: #222; }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #ddd; padding-bottom: 12px; }
+  header a { color: #444; text-decoration: none; }
+  details { margin: 4px 0 4px 4px; padding-left: 12px; border-left: 2px solid #e0e0e0; }
+  summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+  ul { margin: 4px 0; padding-left: 20px; }
+  li { padding: 2px 0; }
+  a { color: #1a5fb4; }
+  .scope-info { color: #666; font-size: 0.9em; margin-bottom: 16px; }
+  .error { color: #b00020; }
+  form label { display: block; margin-bottom: 12px; }
+  input[type=text], input[type=password] { padding: 6px 8px; width: 100%; max-width: 280px; box-sizing: border-box; }
+  button { padding: 8px 16px; cursor: pointer; }
+  table { border-collapse: collapse; }
+  td { padding: 4px 12px 4px 0; vertical-align: top; }
+  .data-table { margin-bottom: 20px; max-width: 100%; }
+  .data-table td { border: 1px solid #ddd; padding: 4px 8px; }
+  .data-table select { max-width: 110px; }
+  .field-row { margin-bottom: 14px; }
+  .field-row label { display: block; font-weight: 600; margin-bottom: 4px; }
+  .field-row input[type=text], .field-row select { padding: 6px 8px; width: 100%; max-width: 420px; box-sizing: border-box; }
+  .field-row input:disabled, .field-row select:disabled { background: #f0f0f0; color: #888; }
+  .checkboxes { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+  .checkbox { font-weight: normal !important; display: flex !important; align-items: center; gap: 4px; width: auto !important; margin-bottom: 0 !important; }
+  .photo-input { display: block; margin-top: 6px; }
+  .pole-columns { display: flex; gap: 32px; flex-wrap: wrap; }
+  .pole-column { flex: 1; min-width: 160px; }
+  .pole-column-title { font-weight: 600; color: #666; font-size: 0.8em; text-transform: uppercase; letter-spacing: .02em; margin-bottom: 2px; }
+  .station-link { margin: 4px 0 4px 4px; padding-left: 12px; }
+  .station-link a { display: inline-block; padding: 4px 0; text-decoration: none; }
+  .station-link a::before { content: "→ "; color: #999; }
+  .search-form { display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .search-form input[type=text] { max-width: 320px; margin: 0; }
+  .button-link { display: inline-block; padding: 8px 16px; margin-bottom: 16px; background: #1a5fb4; color: #fff; border-radius: 4px; text-decoration: none; }
+  .sheet-block { border: 1px solid #ddd; border-radius: 6px; padding: 8px 16px 12px; margin: 0 0 20px; background: #fafafa; }
+  .sheet-block > summary { font-size: 1.05em; font-weight: 700; }
+  .button-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .button-grid .button-link { margin-bottom: 0; }
+  .button-placeholder { display: inline-block; padding: 8px 16px; background: #e8e8e8; color: #999; border-radius: 4px; cursor: default; }
+  .inline-form { display: inline; }
+  .save-note {
+    position: fixed; bottom: 16px; right: 16px; background: #1a5fb4; color: #fff;
+    padding: 8px 16px; border-radius: 4px; opacity: 0; pointer-events: none;
+    transition: opacity .3s; z-index: 100;
+  }
+
+  /* CSS-табы (листы) без JS: скрытые радиокнопки + подписи + панели-соседи. */
+  .tab-radio { display: none; }
+  .tab-bar { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 2px solid #ddd; margin-bottom: 20px; }
+  .tab-label { display: inline-block; margin-bottom: 0; padding: 8px 14px; cursor: pointer; border-radius: 6px 6px 0 0; background: #f0f0f0; font-size: 0.95em; }
+  .tab-panel { display: none; }
+  #tab-1:checked ~ #panel-1,
+  #tab-2:checked ~ #panel-2,
+  #tab-3:checked ~ #panel-3,
+  #tab-4:checked ~ #panel-4,
+  #tab-5:checked ~ #panel-5,
+  #tab-6:checked ~ #panel-6,
+  #tab-7:checked ~ #panel-7 { display: block; }
+  #tab-1:checked ~ .tab-bar label[for="tab-1"],
+  #tab-2:checked ~ .tab-bar label[for="tab-2"],
+  #tab-3:checked ~ .tab-bar label[for="tab-3"],
+  #tab-4:checked ~ .tab-bar label[for="tab-4"],
+  #tab-5:checked ~ .tab-bar label[for="tab-5"],
+  #tab-6:checked ~ .tab-bar label[for="tab-6"],
+  #tab-7:checked ~ .tab-bar label[for="tab-7"] {
+    background: #fff;
+    border: 2px solid #ddd;
+    border-bottom: 2px solid #fff;
+    margin-bottom: -2px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+{% block body %}{% endblock %}
+<div id="save-note" class="save-note">Сохранено</div>
+<script>
+  document.addEventListener("submit", function (event) {
+    var form = event.target.closest("form");
+    if (!form) return;
+    var container = form.closest("[data-ajax-save]");
+    if (!container) return;
+    event.preventDefault();
+
+    var scrollY = window.scrollY;
+    var activeTab = document.querySelector(".tab-radio:checked");
+    var activeTabId = activeTab ? activeTab.id : null;
+    var formData = new FormData(form);
+
+    fetch(form.action, {
+      method: "POST",
+      body: formData,
+      headers: { "X-Requested-With": "XMLHttpRequest" },
+    })
+      .then(function (response) {
+        if (!response.ok) throw new Error("bad response");
+        // Некоторые сохранения после успеха уводят на другую страницу (например,
+        // Установка опоры — на карточку только что созданной опоры) или на себя же
+        // через редирект (Post/Redirect/Get) — fetch такой редирект уже прошёл сам,
+        // остаётся просто по-настоящему туда перейти, а не пытаться подменить форму.
+        if (response.redirected) {
+          window.location.href = response.url;
+          return null;
+        }
+        return response.text();
+      })
+      .then(function (html) {
+        if (html === null) return;
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var newContainer = doc.querySelector("[data-ajax-save]");
+        if (!newContainer) {
+          window.location.reload();
+          return;
+        }
+        container.replaceWith(newContainer);
+        if (activeTabId) {
+          var radio = document.getElementById(activeTabId);
+          if (radio) radio.checked = true;
+        }
+        window.scrollTo(0, scrollY);
+        var note = document.getElementById("save-note");
+        if (note) {
+          note.style.opacity = "1";
+          clearTimeout(note._hideTimer);
+          note._hideTimer = setTimeout(function () { note.style.opacity = "0"; }, 2000);
+        }
+      })
+      .catch(function () {
+        // fetch недоступен/сеть подвела — откатываемся на обычную отправку формы.
+        form.submit();
+      });
+  });
+</script>
+</body>
+</html>

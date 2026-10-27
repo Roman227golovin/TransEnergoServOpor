@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16
+    container_name: opora_db_django
+    restart: always
+    environment:
+      POSTGRES_USER: opora_user
+      POSTGRES_PASSWORD: change_me
+      POSTGRES_DB: opora_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: opora_api_django
+    restart: always
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    ports:
+      - "8001:8000"
+    volumes:
+      - media_data:/app/media
+
+volumes:
+  postgres_data:
+  media_data:

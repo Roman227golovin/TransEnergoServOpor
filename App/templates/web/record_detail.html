@@ -1,0 +1,77 @@
+{% extends "web/base.html" %}
+{% block title %}Запись — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_pole_book' %}">← Назад к списку</a>
+</header>
+{% if not_found %}
+  <p>Запись не найдена или вне вашей зоны ответственности.</p>
+{% else %}
+<div data-ajax-save>
+  <h1>№{{ record.data.pole_number|default:"?" }}{% if record.data.station %} — {{ record.data.station }}{% endif %}</h1>
+  {% if not can_edit_record %}
+    <p class="scope-info">Запись соседнего подразделения — доступна только для просмотра.</p>
+  {% endif %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for sheet in sheets %}
+      <input type="radio" name="_tab" id="tab-{{ forloop.counter }}" class="tab-radio" {% if forloop.first %}checked{% endif %}>
+    {% endfor %}
+
+    <div class="tab-bar">
+      {% for sheet in sheets %}
+        <label for="tab-{{ forloop.counter }}" class="tab-label">{{ sheet.name }}</label>
+      {% endfor %}
+    </div>
+
+    {% for sheet in sheets %}
+    <div class="tab-panel" id="panel-{{ forloop.counter }}">
+      {% for row in sheet.rows %}
+      <div class="field-row">
+        <label>{{ row.field.label }}</label>
+        {% if row.field.type == "dropdown" %}
+          <select name="{{ row.field.key }}" {% if not row.editable %}disabled{% endif %}>
+            <option value=""></option>
+            {% for option in row.options %}
+              <option value="{{ option }}" {% if option == row.value %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+        {% elif row.field.type == "multiselect" %}
+          <div class="checkboxes">
+            {% for option in row.options %}
+              <label class="checkbox">
+                <input type="checkbox" name="{{ row.field.key }}" value="{{ option }}"
+                  {% if option in row.selected %}checked{% endif %}
+                  {% if not row.editable %}disabled{% endif %}>
+                {{ option }}
+              </label>
+            {% endfor %}
+          </div>
+        {% elif row.field.type == "computed" %}
+          <input type="text" value="{{ row.value }}" disabled>
+        {% elif row.field.type == "file" %}
+          {% if row.file_url %}
+            <a href="{{ row.file_url }}">Скачать ({{ row.field.label }})</a>
+          {% else %}
+            <span class="scope-info">ещё не сформирована</span>
+          {% endif %}
+        {% else %}
+          <input type="text" name="{{ row.field.key }}" value="{{ row.value }}" {% if not row.editable %}disabled{% endif %}>
+          {% if row.field.key == "safety_tie" %}
+            {% if row.editable %}
+              <input type="file" name="safety_tie_photo" accept="image/*" capture="environment" class="photo-input">
+            {% endif %}
+            {% if row.value %}
+              <div><a href="{{ row.value }}" target="_blank">Открыть текущее фото/ссылку</a></div>
+            {% endif %}
+          {% endif %}
+        {% endif %}
+      </div>
+      {% endfor %}
+      {% if can_edit_record %}<button type="submit">Сохранить</button>{% endif %}
+    </div>
+    {% endfor %}
+  </form>
+</div>
+{% endif %}
+{% endblock %}

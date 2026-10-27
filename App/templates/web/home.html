@@ -1,0 +1,20 @@
+{% extends "web/base.html" %}
+{% block title %}Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <div>{{ account.full_name|default:account.username }} ({{ account.role }})</div>
+  <a href="{% url 'web_logout' %}">Выйти</a>
+</header>
+
+<h1>Опоры Трансэнерго</h1>
+
+<div class="button-grid">
+  <a href="{% url 'web_info' %}" class="button-link">Информация</a>
+  <a href="{% url 'web_work' %}" class="button-link">Выполнение работ</a>
+  <a href="{% url 'web_planning' %}" class="button-link">Планирование</a>
+  <span class="button-placeholder">Отчеты</span>
+  <span class="button-placeholder">Нормативные документы</span>
+  <span class="button-placeholder">Экспорт/импорт данных</span>
+</div>
+<p class="scope-info">Остальные разделы пока в разработке.</p>
+{% endblock %}

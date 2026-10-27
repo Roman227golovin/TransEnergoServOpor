@@ -1,0 +1,22 @@
+<div class="pole-columns">
+  <div class="pole-column">
+    <div class="pole-column-title">Нечётные</div>
+    <ul>
+      {% for record in records_odd %}
+        <li><a href="{% url 'web_record_detail' record.uuid %}">№{{ record.data.pole_number|default:"?" }}{% if show_station and record.data.station %} — {{ record.data.station }}{% endif %}</a></li>
+      {% empty %}
+        <li>Нет записей</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="pole-column">
+    <div class="pole-column-title">Чётные</div>
+    <ul>
+      {% for record in records_even %}
+        <li><a href="{% url 'web_record_detail' record.uuid %}">№{{ record.data.pole_number|default:"?" }}{% if show_station and record.data.station %} — {{ record.data.station }}{% endif %}</a></li>
+      {% empty %}
+        <li>Нет записей</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

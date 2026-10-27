@@ -1,0 +1,107 @@
+{% extends "web/base.html" %}
+{% block title %}{{ station }} — Диагностирование опор — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_diagnostics' %}?year={{ year }}">← К дереву</a>
+</header>
+<h1>{{ station }} — диагностика на {{ year }} г.</h1>
+
+<form method="get" class="search-form">
+  <input type="hidden" name="year" value="{{ year }}">
+  <input type="hidden" name="directorate" value="{{ directorate }}">
+  <input type="hidden" name="ks_region" value="{{ ks_region }}">
+  <input type="hidden" name="station" value="{{ station }}">
+  <label>Подставить месяц везде, где ещё не выбран:</label>
+  <select name="bulk_month">
+    <option value=""></option>
+    {% for num, name in months %}<option value="{{ num }}">{{ name }}</option>{% endfor %}
+  </select>
+  <button type="submit">Подставить</button>
+</form>
+<p class="scope-info">Подстановка только предзаполняет форму ниже — сохранится после «Сохранить».</p>
+
+<div data-ajax-save>
+  <div class="pole-column-title">Опоры</div>
+  <form method="post">
+    {% csrf_token %}
+    <table class="data-table">
+      <tr>
+        <td><b>№ опоры</b></td>
+        <td><b>Тип</b></td>
+        <td><b>Надземная</b></td>
+        <td><b>Подземная</b></td>
+        <td><b>Потенц. зона</b></td>
+        <td><b>Сопротивление</b></td>
+        <td><b>Месяц</b></td>
+      </tr>
+      {% for row in rows %}
+      <tr>
+        <td>
+          {% if row.can_edit %}
+            <a href="{% url 'web_record_detail' row.record.uuid %}">№{{ row.record.data.pole_number|default:"?" }}</a>
+          {% else %}
+            №{{ row.record.data.pole_number|default:"?" }}
+          {% endif %}
+          {% if row.record.data.pole_index %}({{ row.record.data.pole_index }}){% endif %}
+        </td>
+        <td>{% if row.metal %}металл{% else %}ЖБ{% endif %}, {% if row.anchor %}анкер{% else %}опора{% endif %}</td>
+        <td>{% if row.above_due %}надо{% else %}—{% endif %}</td>
+        <td>{% if row.below_due %}надо{% else %}—{% endif %}</td>
+        <td>
+          {% if row.is_dc and row.can_edit %}
+            <input type="checkbox" name="potential_{{ row.record.uuid }}" {% if row.needs_potential %}checked{% endif %}>
+          {% elif row.needs_potential %}
+            надо
+          {% elif row.is_dc %}
+            —
+          {% else %}
+            н/д
+          {% endif %}
+        </td>
+        <td>
+          {% if row.can_edit %}
+            <input type="checkbox" name="resistance_{{ row.record.uuid }}" {% if row.resistance_needed %}checked{% endif %}>
+          {% elif row.resistance_needed %}
+            надо
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        <td>
+          {% if row.can_edit %}
+            <select name="month_{{ row.record.uuid }}">
+              <option value=""></option>
+              {% for num, name in months %}
+                <option value="{{ num }}" {% if row.month == num %}selected{% endif %}>{{ name }}</option>
+              {% endfor %}
+            </select>
+          {% else %}
+            {{ row.month_name|default:"—" }}
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7">Опор на этой станции нет</td></tr>
+      {% endfor %}
+    </table>
+    <button type="submit">Сохранить</button>
+  </form>
+
+  <div class="pole-column-title">Свод по месяцам</div>
+  <table class="data-table">
+    <tr>
+      <td><b>Вид обследования</b></td>
+      <td><b>Всего</b></td>
+      {% for num, name in months %}<td><b>{{ name|slice:":3" }}</b></td>{% endfor %}
+    </tr>
+    {% for srow in summary_rows %}
+    <tr>
+      <td>{{ srow.label }}</td>
+      <td>{{ srow.total }}</td>
+      {% for count in srow.by_month %}<td>{{ count }}</td>{% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="scope-info">Свод считается автоматически по данным из верхней таблицы.</p>
+</div>
+{% endblock %}

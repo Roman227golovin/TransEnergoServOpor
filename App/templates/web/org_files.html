@@ -1,0 +1,51 @@
+{% extends "web/base.html" %}
+{% block title %}{{ title|default:"Раздел" }} — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_info' %}">← Информация</a>
+</header>
+
+{% if not_found %}
+  <p>Раздел не найден.</p>
+{% elif forbidden %}
+  <p>Этот узел вне вашей зоны видимости.</p>
+{% else %}
+  <h1>{{ title }}</h1>
+
+  {% if show_tree %}
+    {% include "web/_tree_nodes.html" with nodes=tree_nodes %}
+  {% else %}
+  <div data-ajax-save>
+    <p class="scope-info">{{ node_label }}</p>
+
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    {% if not can_edit %}<p class="scope-info">Соседнее подразделение — доступно только для просмотра.</p>{% endif %}
+
+    <ul>
+      {% for f in files %}
+        <li>
+          <a href="{{ f.file.url }}">{{ f.original_name|default:f.file.name }}</a>
+          ({{ f.uploaded_at|date:"d.m.Y H:i" }}, {{ f.uploaded_by }})
+          {% if can_edit %}
+            <form method="post" action="{% url 'web_org_file_delete' f.uuid %}" class="inline-form">
+              {% csrf_token %}
+              <button type="submit">Удалить</button>
+            </form>
+          {% endif %}
+        </li>
+      {% empty %}
+        <li>Файлов ещё нет</li>
+      {% endfor %}
+    </ul>
+
+    {% if can_edit %}
+      <form method="post" enctype="multipart/form-data" class="field-row">
+        {% csrf_token %}
+        <input type="file" name="file">
+        <button type="submit">{% if multiple %}Добавить файл{% else %}Загрузить{% if files %} (заменит текущий){% endif %}{% endif %}</button>
+      </form>
+    {% endif %}
+  </div>
+  {% endif %}
+{% endif %}
+{% endblock %}

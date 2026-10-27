@@ -1,0 +1,62 @@
+{% extends "web/base.html" %}
+{% block title %}Демонтаж опор — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_work' %}">← Выполнение работ</a>
+</header>
+<h1>Демонтаж опор</h1>
+
+{% if show_tree %}
+  {% include "web/_tree_nodes.html" with nodes=tree_nodes %}
+{% else %}
+  <h2>{{ station }}</h2>
+  <div class="pole-columns">
+    <div class="pole-column">
+      <div class="pole-column-title">Нечётные</div>
+      <ul>
+        {% for item in items_odd %}
+          <li>
+            №{{ item.record.data.pole_number|default:"?" }}{% if item.record.data.pole_index %} ({{ item.record.data.pole_index }}){% endif %}
+            {% if item.can_edit %}
+              <details>
+                <summary>Демонтировать</summary>
+                <form method="post" action="{% url 'web_dismantle_pole' item.record.uuid %}">
+                  {% csrf_token %}
+                  <button type="submit">Подтвердить демонтаж</button>
+                </form>
+              </details>
+            {% else %}
+              <span class="scope-info">(соседнее подразделение — только просмотр)</span>
+            {% endif %}
+          </li>
+        {% empty %}
+          <li>Нет опор</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="pole-column">
+      <div class="pole-column-title">Чётные</div>
+      <ul>
+        {% for item in items_even %}
+          <li>
+            №{{ item.record.data.pole_number|default:"?" }}{% if item.record.data.pole_index %} ({{ item.record.data.pole_index }}){% endif %}
+            {% if item.can_edit %}
+              <details>
+                <summary>Демонтировать</summary>
+                <form method="post" action="{% url 'web_dismantle_pole' item.record.uuid %}">
+                  {% csrf_token %}
+                  <button type="submit">Подтвердить демонтаж</button>
+                </form>
+              </details>
+            {% else %}
+              <span class="scope-info">(соседнее подразделение — только просмотр)</span>
+            {% endif %}
+          </li>
+        {% empty %}
+          <li>Нет опор</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

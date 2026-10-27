@@ -1,0 +1,18 @@
+{% extends "web/base.html" %}
+{% block title %}Выполнение работ — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_home' %}">← Назад</a>
+  <div>{{ account.full_name|default:account.username }} ({{ account.role }})</div>
+  <a href="{% url 'web_logout' %}">Выйти</a>
+</header>
+
+<h1>Выполнение работ</h1>
+
+<div class="button-grid">
+  <span class="button-placeholder">Диагностирование опор</span>
+  <a href="{% url 'web_install_pole' %}" class="button-link">Установка опор</a>
+  <a href="{% url 'web_stub' 'pole_repair' %}" class="button-link">Ремонт опор/установка искрового промежутка</a>
+  <a href="{% url 'web_dismantle' %}" class="button-link">Демонтаж опор</a>
+</div>
+{% endblock %}

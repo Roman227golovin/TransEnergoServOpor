@@ -1,0 +1,15 @@
+{% extends "web/base.html" %}
+{% block title %}Опорное хозяйство — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_planning' %}">← Планирование</a>
+  <div>{{ account.full_name|default:account.username }} ({{ account.role }})</div>
+  <a href="{% url 'web_logout' %}">Выйти</a>
+</header>
+<h1>Опорное хозяйство</h1>
+<div class="button-grid">
+  <a href="{% url 'web_diagnostics' %}" class="button-link">Диагностирование опор</a>
+  <span class="button-placeholder">Ремонт опор</span>
+  <span class="button-placeholder">Проверка искровых промежутков</span>
+</div>
+{% endblock %}

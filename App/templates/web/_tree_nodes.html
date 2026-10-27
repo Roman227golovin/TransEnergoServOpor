@@ -1,0 +1,12 @@
+{% for node in nodes %}
+{% if node.children %}
+<details>
+  <summary>{{ node.label }} ({{ node.count }})</summary>
+  {% include "web/_tree_nodes.html" with nodes=node.children %}
+</details>
+{% else %}
+<div class="station-link">
+  <a href="{{ node.url }}">{{ node.label }} ({{ node.count }})</a>
+</div>
+{% endif %}
+{% endfor %}

@@ -1,0 +1,9 @@
+django>=5.0,<6.0
+python-dotenv
+psycopg2-binary
+gunicorn
+passlib[bcrypt]
+bcrypt==4.0.1
+PyJWT
+whitenoise
+openpyxl

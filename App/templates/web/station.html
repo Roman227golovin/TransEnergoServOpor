@@ -1,0 +1,24 @@
+{% extends "web/base.html" %}
+{% block title %}{{ station }} — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_pole_book' %}">← Назад к списку</a>
+</header>
+<h1>{{ station }}</h1>
+
+<form method="get" class="search-form">
+  <input type="hidden" name="directorate" value="{{ directorate }}">
+  <input type="hidden" name="ks_region" value="{{ ks_region }}">
+  <input type="hidden" name="station" value="{{ station }}">
+  <input type="text" name="q" value="{{ query }}" placeholder="Поиск по № опоры в пределах станции">
+  <input type="text" name="km" value="{{ km }}" placeholder="КМ">
+  <input type="text" name="pk" value="{{ pk }}" placeholder="ПК">
+  <input type="text" name="m" value="{{ m }}" placeholder="м">
+  <button type="submit">Найти</button>
+  {% if query or km or pk or m %}
+    <a href="?directorate={{ directorate|urlencode }}&ks_region={{ ks_region|urlencode }}&station={{ station|urlencode }}">Сбросить</a>
+  {% endif %}
+</form>
+
+{% include "web/_record_list.html" with show_station=False %}
+{% endblock %}

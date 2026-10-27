@@ -1,0 +1,61 @@
+{% extends "web/base.html" %}
+{% block title %}Установка опоры — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_work' %}">← Выполнение работ</a>
+</header>
+<h1>Новая опора</h1>
+<div data-ajax-save>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for sheet in sheets %}
+      <input type="radio" name="_tab" id="tab-{{ forloop.counter }}" class="tab-radio" {% if forloop.first %}checked{% endif %}>
+    {% endfor %}
+
+    <div class="tab-bar">
+      {% for sheet in sheets %}
+        <label for="tab-{{ forloop.counter }}" class="tab-label">{{ sheet.name }}</label>
+      {% endfor %}
+    </div>
+
+    {% for sheet in sheets %}
+    <div class="tab-panel" id="panel-{{ forloop.counter }}">
+      {% for row in sheet.rows %}
+      <div class="field-row">
+        <label>{{ row.field.label }}</label>
+        {% if row.field.type == "dropdown" %}
+          <select name="{{ row.field.key }}" {% if not row.editable %}disabled{% endif %}>
+            <option value=""></option>
+            {% for option in row.options %}
+              <option value="{{ option }}" {% if option == row.value %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+        {% elif row.field.type == "multiselect" %}
+          <div class="checkboxes">
+            {% for option in row.options %}
+              <label class="checkbox">
+                <input type="checkbox" name="{{ row.field.key }}" value="{{ option }}"
+                  {% if option in row.selected %}checked{% endif %}
+                  {% if not row.editable %}disabled{% endif %}>
+                {{ option }}
+              </label>
+            {% endfor %}
+          </div>
+        {% elif row.field.type == "computed" %}
+          <input type="text" value="{{ row.value }}" disabled>
+        {% else %}
+          <input type="text" name="{{ row.field.key }}" value="{{ row.value }}" {% if not row.editable %}disabled{% endif %}>
+          {% if row.field.key == "safety_tie" and row.editable %}
+            <input type="file" name="safety_tie_photo" accept="image/*" capture="environment" class="photo-input">
+          {% endif %}
+        {% endif %}
+      </div>
+      {% endfor %}
+      <button type="submit">Создать опору</button>
+    </div>
+    {% endfor %}
+  </form>
+</div>
+{% endblock %}

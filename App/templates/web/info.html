@@ -1,0 +1,21 @@
+{% extends "web/base.html" %}
+{% block title %}Информация — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_home' %}">← Назад</a>
+  <div>{{ account.full_name|default:account.username }} ({{ account.role }})</div>
+  <a href="{% url 'web_logout' %}">Выйти</a>
+</header>
+
+<h1>Информация</h1>
+
+<div class="button-grid">
+  <a href="{% url 'web_org_files' 'power_scheme' %}" class="button-link">Схема питания и секционирования</a>
+  <a href="{% url 'web_org_files' 'echk_passport' %}" class="button-link">Паспорт ЭЧК</a>
+  <a href="{% url 'web_org_files' 'network_plan' %}" class="button-link">План контактной сети</a>
+  <a href="{% url 'web_pole_book' %}" class="button-link">Книга опор</a>
+  <a href="{% url 'web_stub' 'spark_log' %}" class="button-link">Журнал учета искровых промежутков</a>
+  <a href="{% url 'web_org_files' 'org_structure' %}" class="button-link">Организационная структура</a>
+  <a href="{% url 'web_stub' 'diagnostics' %}" class="button-link">Приборы диагностики</a>
+</div>
+{% endblock %}

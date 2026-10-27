@@ -1,0 +1,38 @@
+{% extends "web/base.html" %}
+{% block title %}Книга опор — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_info' %}">← Информация</a>
+  <div>{{ account.full_name|default:account.username }} ({{ account.role }})</div>
+  <a href="{% url 'web_logout' %}">Выйти</a>
+</header>
+
+<h1>Книга опор</h1>
+
+{% if scope_levels %}
+<p class="scope-info">
+  Ваша зона ответственности:
+  {% for label, value in scope_levels %}{{ label }}: {{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}
+</p>
+{% endif %}
+{% if sees_neighbors %}
+<p class="scope-info">Также видны (только просмотр) соседние ЭЧ и ЭЧК в пределах вашей Дирекции.</p>
+{% endif %}
+
+{% if account.role == "TE" or account.role == "NTE" %}
+  <a href="{% url 'web_add_pole' %}" class="button-link">+ Добавить опоры из Excel</a>
+{% endif %}
+
+<form method="get" class="search-form">
+  <input type="text" name="q" value="{{ query }}" placeholder="Глобальный поиск по № опоры (по всем доступным записям)">
+  <button type="submit">Найти везде</button>
+  {% if query %}<a href="{% url 'web_pole_book' %}">Сбросить</a>{% endif %}
+</form>
+
+{% if query %}
+  <p class="scope-info">Результаты поиска «{{ query }}»:</p>
+  {% include "web/_record_list.html" with records_odd=search_records_odd records_even=search_records_even show_station=True %}
+{% else %}
+  {% include "web/_tree_nodes.html" with nodes=tree_nodes %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "web/base.html" %}
+{% block title %}{{ title|default:"Раздел" }} — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  {% if back_name %}<a href="{% url back_name %}">← {{ back_label }}</a>{% endif %}
+</header>
+{% if not_found %}
+  <p>Раздел не найден.</p>
+{% else %}
+  <h1>{{ title }}</h1>
+  <p class="scope-info">Раздел пока в разработке.</p>
+{% endif %}
+{% endblock %}

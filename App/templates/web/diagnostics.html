@@ -1,0 +1,30 @@
+{% extends "web/base.html" %}
+{% block title %}Диагностирование опор — Опоры Трансэнерго{% endblock %}
+{% block body %}
+<header>
+  <a href="{% url 'web_pole_economy' %}">← Опорное хозяйство</a>
+</header>
+<h1>Диагностирование опор{% if year %} — {{ year }} г.{% endif %}</h1>
+{% if choose_year %}
+  <p class="scope-info">
+    Выбери год планирования. Список ниже собран по опорам, у которых уже проставлен
+    этот год как «очередная проверка» — если нужного года там нет (например,
+    планируешь только измерение потенциальной зоны, у него нет автотриггера), впиши
+    год вручную.
+  </p>
+  {% if years %}
+    <div class="button-grid">
+      {% for y in years %}
+        <a href="?year={{ y }}" class="button-link">{{ y }}</a>
+      {% endfor %}
+    </div>
+  {% endif %}
+  <form method="get" class="field-row">
+    <label>Другой год</label>
+    <input type="text" name="year" placeholder="например, 2027">
+    <button type="submit">Далее</button>
+  </form>
+{% else %}
+  {% include "web/_tree_nodes.html" with nodes=tree_nodes %}
+{% endif %}
+{% endblock %}
